@@ -181,6 +181,77 @@ func TestCheckPageCorruptionBadAlpha(t *testing.T) {
 	}
 }
 
+func TestGenerateOrPlaceholderSuccess(t *testing.T) {
+	tmpDir := t.TempDir()
+	pngPath := filepath.Join(tmpDir, "test.png")
+
+	// Create a 100x80 test PNG
+	img := image.NewRGBA(image.Rect(0, 0, 100, 80))
+	for y := range 80 {
+		for x := range 100 {
+			img.Set(x, y, color.RGBA{0, 128, 0, 255})
+		}
+	}
+	f, err := os.Create(pngPath)
+	if err != nil {
+		t.Fatalf("failed to create test PNG: %v", err)
+	}
+	if err := png.Encode(f, img); err != nil {
+		f.Close()
+		t.Fatalf("failed to encode test PNG: %v", err)
+	}
+	f.Close()
+
+	thumb := GenerateOrPlaceholder(pngPath, 40)
+	if thumb == nil {
+		t.Fatal("GenerateOrPlaceholder returned nil for valid image")
+	}
+	bounds := thumb.Bounds()
+	if bounds.Dy() != 40 {
+		t.Errorf("expected height 40, got %d", bounds.Dy())
+	}
+	// Should be a real thumbnail (width scaled proportionally), not a square placeholder
+	if bounds.Dx() == bounds.Dy() {
+		t.Error("expected non-square thumbnail for valid image, got square (likely placeholder)")
+	}
+}
+
+func TestGenerateOrPlaceholderUnsupported(t *testing.T) {
+	thumb := GenerateOrPlaceholder("test.xyz", 64)
+	if thumb == nil {
+		t.Fatal("GenerateOrPlaceholder returned nil for unsupported format")
+	}
+	bounds := thumb.Bounds()
+	if bounds.Dx() != 64 || bounds.Dy() != 64 {
+		t.Errorf("expected 64x64 placeholder, got %dx%d", bounds.Dx(), bounds.Dy())
+	}
+}
+
+func TestErrorPlaceholder(t *testing.T) {
+	tests := []struct {
+		label  string
+		height uint
+	}{
+		{"Password Protected", 64},
+		{"Unsupported Format", 128},
+		{"File Not Found", 32},
+		{"Error", 64},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			img := ErrorPlaceholder(tt.label, tt.height)
+			if img == nil {
+				t.Fatal("ErrorPlaceholder returned nil")
+			}
+			bounds := img.Bounds()
+			size := int(tt.height)
+			if bounds.Dx() != size || bounds.Dy() != size {
+				t.Errorf("expected %dx%d, got %dx%d", size, size, bounds.Dx(), bounds.Dy())
+			}
+		})
+	}
+}
+
 func TestGenerateAndSaveImage(t *testing.T) {
 	tmpDir := t.TempDir()
 	pngPath := filepath.Join(tmpDir, "test.png")
