@@ -6,8 +6,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
-
-	"github.com/nfnt/resize"
 )
 
 // generateImageThumbnail creates a thumbnail from a JPG or PNG file.
@@ -24,6 +22,5 @@ func generateImageThumbnail(path string, height uint) (image.Image, error) {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
 
-	resized := resize.Resize(0, height, img, resize.Lanczos3)
-	return resized, nil
+	return resizeHeight(img, height), nil
 }

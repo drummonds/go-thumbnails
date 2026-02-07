@@ -3,10 +3,23 @@ package thumbnails
 import (
 	"image"
 	"image/color"
-	"image/draw"
 
-	"github.com/nfnt/resize"
+	"golang.org/x/image/draw"
 )
+
+// resizeHeight scales img to the given height, preserving aspect ratio.
+// Uses CatmullRom which handles alpha correctly (premultiplied-alpha aware).
+func resizeHeight(img image.Image, height uint) *image.RGBA {
+	b := img.Bounds()
+	srcW, srcH := b.Dx(), b.Dy()
+	if srcH == 0 {
+		return image.NewRGBA(image.Rect(0, 0, 0, 0))
+	}
+	dstW := int(float64(srcW) * float64(height) / float64(srcH))
+	dst := image.NewRGBA(image.Rect(0, 0, dstW, int(height)))
+	draw.CatmullRom.Scale(dst, dst.Bounds(), img, b, draw.Src, nil)
+	return dst
+}
 
 // compositePages creates a composite thumbnail from multiple page images.
 // It shows up to 4 pages side-by-side, resized to the target height.
@@ -19,11 +32,11 @@ func compositePages(pages []image.Image, height uint) image.Image {
 		showPlusIndicator = true
 	}
 
-	resizedPages := make([]image.Image, numPagesToShow)
+	resizedPages := make([]*image.RGBA, numPagesToShow)
 	totalWidth := 0
 
 	for i := 0; i < numPagesToShow; i++ {
-		resized := resize.Resize(0, height, pages[i], resize.Lanczos3)
+		resized := resizeHeight(pages[i], height)
 		resizedPages[i] = resized
 		totalWidth += resized.Bounds().Dx()
 	}

@@ -81,8 +81,23 @@ func (r *PDFiumRenderer) RenderPDF(filename string) ([]image.Image, error) {
 			return nil, fmt.Errorf("unable to render page %d: %w", pageIndex, err)
 		}
 
-		images = append(images, pageRender.Result.Image)
+		// Copy pixel data into a Go-owned buffer and fix corrupt alpha.
+		// PDFium WASM produces RGBA buffers with garbage alpha channels,
+		// and Cleanup() may invalidate the underlying WASM memory.
+		src := pageRender.Result.Image
+		pix := make([]byte, len(src.Pix))
+		copy(pix, src.Pix)
+		for i := 3; i < len(pix); i += 4 {
+			pix[i] = 255
+		}
+		img := &image.RGBA{
+			Pix:    pix,
+			Stride: src.Stride,
+			Rect:   src.Rect,
+		}
 		pageRender.Cleanup()
+
+		images = append(images, img)
 	}
 
 	return images, nil

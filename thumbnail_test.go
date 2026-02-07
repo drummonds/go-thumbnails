@@ -146,6 +146,41 @@ func TestGenerateImagePNG(t *testing.T) {
 	}
 }
 
+func TestCheckPageCorruptionClean(t *testing.T) {
+	// A normal opaque RGBA image should not be flagged as corrupt
+	img := image.NewRGBA(image.Rect(0, 0, 100, 100))
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
+			img.Set(x, y, color.RGBA{50, 50, 50, 255})
+		}
+	}
+	result := CheckPageCorruption(img)
+	if result.Corrupt {
+		t.Errorf("clean image flagged as corrupt: %s", result.Reason)
+	}
+}
+
+func TestCheckPageCorruptionBadAlpha(t *testing.T) {
+	// Simulate the PDFium corruption: rows with random non-255 alpha
+	img := image.NewRGBA(image.Rect(0, 0, 100, 100))
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
+			if y < 20 { // 20% of rows are corrupt
+				img.Set(x, y, color.RGBA{0x26, 0xa0, 0x3a, 0x07})
+			} else {
+				img.Set(x, y, color.RGBA{0, 0, 0, 255})
+			}
+		}
+	}
+	result := CheckPageCorruption(img)
+	if !result.Corrupt {
+		t.Error("corrupt image not detected")
+	}
+	if result.CorruptRowFraction < 0.10 {
+		t.Errorf("expected >=10%% corrupt rows, got %.1f%%", result.CorruptRowFraction*100)
+	}
+}
+
 func TestGenerateAndSaveImage(t *testing.T) {
 	tmpDir := t.TempDir()
 	pngPath := filepath.Join(tmpDir, "test.png")

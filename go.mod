@@ -4,7 +4,6 @@ go 1.25.3
 
 require (
 	github.com/klippa-app/go-pdfium v1.17.2
-	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	golang.org/x/image v0.32.0
 )
 
