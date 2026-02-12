@@ -260,6 +260,118 @@ func TestErrorPlaceholder(t *testing.T) {
 	}
 }
 
+func TestGenerateTestdataPNG(t *testing.T) {
+	if !hasTestdata() {
+		t.Skip("testdata/ not found, skipping image tests")
+	}
+
+	tests := []struct {
+		name  string
+		file  string
+		width uint
+	}{
+		{"landscape PNG", "landscape_300x200.png", 64},
+		{"portrait PNG", "portrait_200x400.png", 64},
+		{"square PNG", "square_256x256.png", 64},
+		{"tiny PNG", "tiny_8x8.png", 64},
+		{"large PNG", "large_1200x800.png", 64},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(testdataDir(), tt.file)
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				t.Skipf("test file %s not found", tt.file)
+			}
+
+			img, err := Generate(path, tt.width)
+			if err != nil {
+				t.Fatalf("Generate(%q, %d) failed: %v", tt.file, tt.width, err)
+			}
+
+			bounds := img.Bounds()
+			expectedW := int(tt.width)
+			expectedH := int(pageHeight(tt.width))
+			if bounds.Dx() != expectedW {
+				t.Errorf("expected width %d, got %d", expectedW, bounds.Dx())
+			}
+			if bounds.Dy() != expectedH {
+				t.Errorf("expected height %d, got %d", expectedH, bounds.Dy())
+			}
+		})
+	}
+}
+
+func TestGenerateTestdataJPEG(t *testing.T) {
+	if !hasTestdata() {
+		t.Skip("testdata/ not found, skipping JPEG tests")
+	}
+
+	tests := []struct {
+		name  string
+		file  string
+		width uint
+	}{
+		{"photo JPEG", "photo_400x300.jpg", 64},
+		{"portrait JPEG", "portrait_300x500.jpg", 64},
+		{"small JPEG", "small_50x50.jpg", 64},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(testdataDir(), tt.file)
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				t.Skipf("test file %s not found", tt.file)
+			}
+
+			img, err := Generate(path, tt.width)
+			if err != nil {
+				t.Fatalf("Generate(%q, %d) failed: %v", tt.file, tt.width, err)
+			}
+
+			bounds := img.Bounds()
+			expectedW := int(tt.width)
+			expectedH := int(pageHeight(tt.width))
+			if bounds.Dx() != expectedW {
+				t.Errorf("expected width %d, got %d", expectedW, bounds.Dx())
+			}
+			if bounds.Dy() != expectedH {
+				t.Errorf("expected height %d, got %d", expectedH, bounds.Dy())
+			}
+		})
+	}
+}
+
+func TestGenerateAndSaveTestdataImage(t *testing.T) {
+	if !hasTestdata() {
+		t.Skip("testdata/ not found, skipping image save tests")
+	}
+
+	files := []string{"landscape_300x200.png", "photo_400x300.jpg"}
+	for _, file := range files {
+		t.Run(file, func(t *testing.T) {
+			path := filepath.Join(testdataDir(), file)
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				t.Skipf("test file %s not found", file)
+			}
+
+			outputPath := filepath.Join(t.TempDir(), "thumb.png")
+			err := GenerateAndSave(path, outputPath, 64)
+			if err != nil {
+				t.Fatalf("GenerateAndSave failed: %v", err)
+			}
+
+			info, err := os.Stat(outputPath)
+			if err != nil {
+				t.Fatalf("output file not found: %v", err)
+			}
+			if info.Size() == 0 {
+				t.Error("output file is empty")
+			}
+		})
+	}
+}
+
 func TestGenerateAndSaveImage(t *testing.T) {
 	tmpDir := t.TempDir()
 	pngPath := filepath.Join(tmpDir, "test.png")
