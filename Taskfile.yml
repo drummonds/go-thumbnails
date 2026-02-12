@@ -1,0 +1,72 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # Test tasks
+  test:
+    desc: Run all Go tests
+    cmds:
+      - go test -v ./...
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - go test -v -cover -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated at coverage.html"
+
+  # Code quality
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  # Dependency management
+  deps:tidy:
+    desc: Tidy Go module dependencies
+    cmds:
+      - go mod tidy
+
+  deps:update:
+    desc: Update dependencies
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
+  # Combined checks
+  check:
+    desc: Run all checks (fmt, vet, test)
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: test
+
+  # Clean
+  clean:
+    desc: Clean generated files
+    cmds:
+      - rm -f coverage.out coverage.html
+      - echo "Cleaned generated files"
+
+  # Release (adapted from godocs)
+  release:*:*:
+    desc: "Release a version, e.g.: task release:v0.1.0:\"initial release\""
+    vars:
+      TAG: '{{index .MATCH 0}}'
+      BUILD: '{{index .MATCH 1}}'
+    cmds:
+      - task: check
+      - git add .
+      - git commit -am "{{.BUILD}}"
+      - git tag "{{.TAG}}"
+      - git push origin "{{.TAG}}"
+      - git push

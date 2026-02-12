@@ -21,7 +21,7 @@ func hasTestdata() bool {
 func TestDefaultThumbnailPath(t *testing.T) {
 	tests := []struct {
 		docPath  string
-		height   uint
+		width    uint
 		expected string
 	}{
 		{"doc.pdf", 64, "doc.tn_64.png"},
@@ -30,9 +30,9 @@ func TestDefaultThumbnailPath(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := DefaultThumbnailPath(tt.docPath, tt.height)
+		result := DefaultThumbnailPath(tt.docPath, tt.width)
 		if result != tt.expected {
-			t.Errorf("DefaultThumbnailPath(%q, %d) = %q, want %q", tt.docPath, tt.height, result, tt.expected)
+			t.Errorf("DefaultThumbnailPath(%q, %d) = %q, want %q", tt.docPath, tt.width, result, tt.expected)
 		}
 	}
 }
@@ -52,8 +52,8 @@ func TestGeneratePDF(t *testing.T) {
 	tests := []struct {
 		name     string
 		file     string
-		height   uint
-		minWidth int
+		width    uint
+		minPages int // minimum number of page tiles expected
 	}{
 		{"empty PDF", "1-empty.pdf", 64, 1},
 		{"hello PDF", "2-hello.pdf", 64, 1},
@@ -70,17 +70,19 @@ func TestGeneratePDF(t *testing.T) {
 				t.Skipf("test file %s not found", tt.file)
 			}
 
-			img, err := Generate(path, tt.height)
+			img, err := Generate(path, tt.width)
 			if err != nil {
-				t.Fatalf("Generate(%q, %d) failed: %v", path, tt.height, err)
+				t.Fatalf("Generate(%q, %d) failed: %v", path, tt.width, err)
 			}
 
 			bounds := img.Bounds()
-			if uint(bounds.Dy()) != tt.height {
-				t.Errorf("expected height %d, got %d", tt.height, bounds.Dy())
+			expectedHeight := int(pageHeight(tt.width))
+			if bounds.Dy() != expectedHeight {
+				t.Errorf("expected height %d, got %d", expectedHeight, bounds.Dy())
 			}
-			if bounds.Dx() < tt.minWidth {
-				t.Errorf("expected width >= %d, got %d", tt.minWidth, bounds.Dx())
+			minWidth := tt.minPages * int(tt.width)
+			if bounds.Dx() < minWidth {
+				t.Errorf("expected width >= %d, got %d", minWidth, bounds.Dx())
 			}
 		})
 	}
@@ -132,17 +134,19 @@ func TestGenerateImagePNG(t *testing.T) {
 	}
 	f.Close()
 
-	thumb, err := Generate(pngPath, 40)
+	// width=50: image scaled to 50×40, padded to 50×pageHeight(50)=50×71
+	thumb, err := Generate(pngPath, 50)
 	if err != nil {
 		t.Fatalf("Generate for PNG failed: %v", err)
 	}
 
-	if thumb.Bounds().Dy() != 40 {
-		t.Errorf("expected height 40, got %d", thumb.Bounds().Dy())
+	expectedW := 50
+	expectedH := int(pageHeight(50)) // 71
+	if thumb.Bounds().Dx() != expectedW {
+		t.Errorf("expected width %d, got %d", expectedW, thumb.Bounds().Dx())
 	}
-	// Width should scale proportionally: 100 * 40/80 = 50
-	if thumb.Bounds().Dx() != 50 {
-		t.Errorf("expected width 50, got %d", thumb.Bounds().Dx())
+	if thumb.Bounds().Dy() != expectedH {
+		t.Errorf("expected height %d, got %d", expectedH, thumb.Bounds().Dy())
 	}
 }
 
@@ -202,17 +206,18 @@ func TestGenerateOrPlaceholderSuccess(t *testing.T) {
 	}
 	f.Close()
 
-	thumb := GenerateOrPlaceholder(pngPath, 40)
+	thumb := GenerateOrPlaceholder(pngPath, 50)
 	if thumb == nil {
 		t.Fatal("GenerateOrPlaceholder returned nil for valid image")
 	}
 	bounds := thumb.Bounds()
-	if bounds.Dy() != 40 {
-		t.Errorf("expected height 40, got %d", bounds.Dy())
+	expectedW := 50
+	expectedH := int(pageHeight(50))
+	if bounds.Dx() != expectedW {
+		t.Errorf("expected width %d, got %d", expectedW, bounds.Dx())
 	}
-	// Should be a real thumbnail (width scaled proportionally), not a square placeholder
-	if bounds.Dx() == bounds.Dy() {
-		t.Error("expected non-square thumbnail for valid image, got square (likely placeholder)")
+	if bounds.Dy() != expectedH {
+		t.Errorf("expected height %d, got %d", expectedH, bounds.Dy())
 	}
 }
 
@@ -222,15 +227,17 @@ func TestGenerateOrPlaceholderUnsupported(t *testing.T) {
 		t.Fatal("GenerateOrPlaceholder returned nil for unsupported format")
 	}
 	bounds := thumb.Bounds()
-	if bounds.Dx() != 64 || bounds.Dy() != 64 {
-		t.Errorf("expected 64x64 placeholder, got %dx%d", bounds.Dx(), bounds.Dy())
+	expectedW := 64
+	expectedH := int(pageHeight(64))
+	if bounds.Dx() != expectedW || bounds.Dy() != expectedH {
+		t.Errorf("expected %dx%d placeholder, got %dx%d", expectedW, expectedH, bounds.Dx(), bounds.Dy())
 	}
 }
 
 func TestErrorPlaceholder(t *testing.T) {
 	tests := []struct {
-		label  string
-		height uint
+		label string
+		width uint
 	}{
 		{"Password Protected", 64},
 		{"Unsupported Format", 128},
@@ -239,14 +246,15 @@ func TestErrorPlaceholder(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
-			img := ErrorPlaceholder(tt.label, tt.height)
+			img := ErrorPlaceholder(tt.label, tt.width)
 			if img == nil {
 				t.Fatal("ErrorPlaceholder returned nil")
 			}
 			bounds := img.Bounds()
-			size := int(tt.height)
-			if bounds.Dx() != size || bounds.Dy() != size {
-				t.Errorf("expected %dx%d, got %dx%d", size, size, bounds.Dx(), bounds.Dy())
+			expectedW := int(tt.width)
+			expectedH := int(pageHeight(tt.width))
+			if bounds.Dx() != expectedW || bounds.Dy() != expectedH {
+				t.Errorf("expected %dx%d, got %dx%d", expectedW, expectedH, bounds.Dx(), bounds.Dy())
 			}
 		})
 	}

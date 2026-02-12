@@ -33,21 +33,22 @@ func classifyError(err error) placeholderInfo {
 }
 
 // ErrorPlaceholder generates a coloured placeholder image with the given label.
-// The image is square (height × height) with white centred text.
-func ErrorPlaceholder(label string, height uint) image.Image {
-	size := int(height)
-	img := image.NewRGBA(image.Rect(0, 0, size, size))
+// The image is width × pageHeight(width) with white centred text.
+func ErrorPlaceholder(label string, width uint) image.Image {
+	w := int(width)
+	h := int(pageHeight(width))
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
 
 	// Fill background — pick colour from label, or default red.
 	bg := bgForLabel(label)
-	for y := range size {
-		for x := range size {
+	for y := range h {
+		for x := range w {
 			img.Set(x, y, bg)
 		}
 	}
 
 	// Draw text centred in the image.
-	drawCentredText(img, label, size)
+	drawCentredText(img, label, w, h)
 
 	return img
 }
@@ -68,12 +69,12 @@ func bgForLabel(label string) color.RGBA {
 
 // drawCentredText draws white text centred in the image.
 // For small images the text may be clipped, which is acceptable for thumbnails.
-func drawCentredText(img *image.RGBA, text string, size int) {
+func drawCentredText(img *image.RGBA, text string, w, h int) {
 	face := basicfont.Face7x13
 	textWidth := font.MeasureString(face, text).Ceil()
-	x := (size - textWidth) / 2
+	x := (w - textWidth) / 2
 	x = max(x, 2)
-	y := size/2 + face.Metrics().Ascent.Ceil()/2
+	y := h/2 + face.Metrics().Ascent.Ceil()/2
 
 	d := &font.Drawer{
 		Dst:  img,
@@ -87,11 +88,11 @@ func drawCentredText(img *image.RGBA, text string, size int) {
 // GenerateOrPlaceholder wraps Generate: on success it returns the real
 // thumbnail; on any error it returns a placeholder image indicating the
 // error type. It never returns nil.
-func GenerateOrPlaceholder(filePath string, height uint) image.Image {
-	img, err := Generate(filePath, height)
+func GenerateOrPlaceholder(filePath string, width uint) image.Image {
+	img, err := Generate(filePath, width)
 	if err == nil {
 		return img
 	}
 	info := classifyError(err)
-	return ErrorPlaceholder(info.label, height)
+	return ErrorPlaceholder(info.label, width)
 }

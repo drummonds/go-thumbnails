@@ -9,7 +9,7 @@ import (
 
 // generatePDFThumbnail creates a thumbnail from a PDF file.
 // It renders all pages and composites up to 4 side-by-side.
-func generatePDFThumbnail(path string, height uint) (image.Image, error) {
+func generatePDFThumbnail(path string, width uint) (image.Image, error) {
 	renderer, err := pdfrenderer.NewPDFiumRenderer()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create PDF renderer: %w", err)
@@ -25,5 +25,5 @@ func generatePDFThumbnail(path string, height uint) (image.Image, error) {
 		return nil, fmt.Errorf("PDF has no pages")
 	}
 
-	return compositePages(pages, height), nil
+	return compositePages(pages, width), nil
 }

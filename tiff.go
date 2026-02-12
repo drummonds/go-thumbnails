@@ -11,7 +11,7 @@ import (
 
 // generateTIFFThumbnail creates a thumbnail from a TIFF file.
 // It decodes all frames and composites up to 4 side-by-side.
-func generateTIFFThumbnail(path string, height uint) (image.Image, error) {
+func generateTIFFThumbnail(path string, width uint) (image.Image, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open TIFF file: %w", err)
@@ -27,7 +27,7 @@ func generateTIFFThumbnail(path string, height uint) (image.Image, error) {
 		return nil, fmt.Errorf("TIFF has no pages")
 	}
 
-	return compositePages(pages, height), nil
+	return compositePages(pages, width), nil
 }
 
 // decodeTIFFPages decodes all frames from a multi-page TIFF.

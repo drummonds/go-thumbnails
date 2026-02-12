@@ -15,27 +15,27 @@ import (
 )
 
 type Result struct {
-	File             string  `json:"file"`
-	Status           string  `json:"status"` // "ok", "error", "corrupt"
-	Error            string  `json:"error,omitempty"`
-	Width            int     `json:"width,omitempty"`
-	Height           int     `json:"height,omitempty"`
-	Elapsed          float64 `json:"elapsed_ms"`
-	FileSize         int64   `json:"file_size_bytes,omitempty"`
-	OutPath          string  `json:"out_path,omitempty"`
-	CorruptRowPct    float64 `json:"corrupt_row_pct,omitempty"`
-	NonOpaqueRowPct  float64 `json:"non_opaque_row_pct,omitempty"`
+	File            string  `json:"file"`
+	Status          string  `json:"status"` // "ok", "error", "corrupt"
+	Error           string  `json:"error,omitempty"`
+	Width           int     `json:"width,omitempty"`
+	Height          int     `json:"height,omitempty"`
+	Elapsed         float64 `json:"elapsed_ms"`
+	FileSize        int64   `json:"file_size_bytes,omitempty"`
+	OutPath         string  `json:"out_path,omitempty"`
+	CorruptRowPct   float64 `json:"corrupt_row_pct,omitempty"`
+	NonOpaqueRowPct float64 `json:"non_opaque_row_pct,omitempty"`
 }
 
 func main() {
 	inputDir := flag.String("input", "", "Directory containing PDF files")
 	outputDir := flag.String("output", "", "Directory for thumbnail output")
-	height := flag.Uint("height", 64, "Thumbnail height in pixels")
+	width := flag.Uint("width", 64, "Thumbnail width in pixels")
 	reportPath := flag.String("report", "", "Path for JSON report (default: stdout)")
 	flag.Parse()
 
 	if *inputDir == "" || *outputDir == "" {
-		fmt.Fprintf(os.Stderr, "Usage: batch -input <dir> -output <dir> [-height N] [-report file.json]\n")
+		fmt.Fprintf(os.Stderr, "Usage: batch -input <dir> -output <dir> [-width N] [-report file.json]\n")
 		os.Exit(1)
 	}
 
@@ -52,7 +52,7 @@ func main() {
 	sort.Strings(pdfs)
 
 	fmt.Fprintf(os.Stderr, "Processing %d PDFs from %s\n", len(pdfs), *inputDir)
-	fmt.Fprintf(os.Stderr, "Output to %s, height=%d\n\n", *outputDir, *height)
+	fmt.Fprintf(os.Stderr, "Output to %s, width=%d\n\n", *outputDir, *width)
 
 	var results []Result
 	okCount, errCount, corruptCount := 0, 0, 0
@@ -69,7 +69,7 @@ func main() {
 		}
 
 		start := time.Now()
-		img, genErr := thumbnails.Generate(pdfPath, *height)
+		img, genErr := thumbnails.Generate(pdfPath, *width)
 		elapsed := time.Since(start).Milliseconds()
 
 		r := Result{

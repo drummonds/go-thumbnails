@@ -9,8 +9,8 @@ import (
 )
 
 // generateImageThumbnail creates a thumbnail from a JPG or PNG file.
-// It simply resizes the image to the target height, maintaining aspect ratio.
-func generateImageThumbnail(path string, height uint) (image.Image, error) {
+// It resizes to the target width and crops/pads to A4 aspect ratio.
+func generateImageThumbnail(path string, width uint) (image.Image, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open image file: %w", err)
@@ -22,5 +22,5 @@ func generateImageThumbnail(path string, height uint) (image.Image, error) {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
 
-	return resizeHeight(img, height), nil
+	return resizeToPage(img, width), nil
 }

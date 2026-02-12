@@ -48,7 +48,7 @@ func main() {
 		// Find first corrupt row and dump raw bytes
 		w := b.Dx()
 		for y := b.Min.Y; y < b.Max.Y; y++ {
-			rowStart := (y-b.Min.Y)*rgba.Stride
+			rowStart := (y - b.Min.Y) * rgba.Stride
 			hasNonGray := false
 			hasNon255Alpha := false
 			for x := 0; x < w; x++ {
@@ -64,7 +64,7 @@ func main() {
 			if hasNonGray {
 				fmt.Printf("  First corrupt row: y=%d (hasNon255Alpha=%v)\n", y, hasNon255Alpha)
 				// Dump first 40 bytes of this row
-				rowStart := (y-b.Min.Y)*rgba.Stride
+				rowStart := (y - b.Min.Y) * rgba.Stride
 				fmt.Printf("  Raw bytes[0:40]: ")
 				for j := 0; j < 40 && j < len(rgba.Pix)-rowStart; j++ {
 					fmt.Printf("%02x ", rgba.Pix[rowStart+j])
@@ -73,7 +73,7 @@ func main() {
 
 				// Also dump a known-good row before it
 				if y > b.Min.Y {
-					goodRow := (y-1-b.Min.Y)*rgba.Stride
+					goodRow := (y - 1 - b.Min.Y) * rgba.Stride
 					fmt.Printf("  Good row y=%d bytes[0:40]: ", y-1)
 					for j := 0; j < 40 && j < len(rgba.Pix)-goodRow; j++ {
 						fmt.Printf("%02x ", rgba.Pix[goodRow+j])
@@ -99,7 +99,7 @@ func main() {
 		corruptRows := 0
 		alphaRows := 0
 		for y := b.Min.Y; y < b.Max.Y; y++ {
-			rowStart := (y-b.Min.Y)*rgba.Stride
+			rowStart := (y - b.Min.Y) * rgba.Stride
 			rowCorrupt := false
 			rowHasAlpha := false
 			for x := 0; x < w; x += max(1, w/100) {
