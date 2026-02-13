@@ -26,8 +26,8 @@ func resizeToPage(img image.Image, width uint) *image.RGBA {
 	ph := int(pageHeight(width))
 	dst := image.NewRGBA(image.Rect(0, 0, int(width), ph))
 
-	// White background
-	draw.Draw(dst, dst.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+	// Light grey background to show padding
+	draw.Draw(dst, dst.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
 
 	if scaledH >= ph {
 		// Crop from top: take the top ph rows.
@@ -69,8 +69,8 @@ func compositePages(pages []image.Image, width uint) image.Image {
 
 	composite := image.NewRGBA(image.Rect(0, 0, totalWidth, ph))
 
-	// Fill with white background
-	draw.Draw(composite, composite.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+	// Fill with light grey background
+	draw.Draw(composite, composite.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
 
 	// Draw each page thumbnail side by side
 	currentX := 0

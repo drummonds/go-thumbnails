@@ -25,8 +25,8 @@ func uniformPage(firstPage image.Image, pageCount int, width uint) image.Image {
 	h := int(uniformHeight(width))
 	dst := image.NewRGBA(image.Rect(0, 0, w, h))
 
-	// White background
-	draw.Draw(dst, dst.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+	// Light grey background to show padding
+	draw.Draw(dst, dst.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
 
 	// Scale first page to fill width, preserving aspect ratio
 	b := firstPage.Bounds()

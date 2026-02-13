@@ -3,12 +3,18 @@ package thumbnails
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+// bgColor is the background colour used behind resized page images.
+// A light grey makes it visually clear when an image has been padded
+// (e.g. a landscape page fitted into a portrait thumbnail).
+var bgColor = color.RGBA{240, 240, 240, 255}
 
 // Style controls the thumbnail rendering mode.
 type Style int
