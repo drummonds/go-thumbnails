@@ -116,6 +116,45 @@ func main() {
 		}
 	}
 
+	// --- 4. Uniform style (fixed size + page count watermark) ---
+	fmt.Println()
+	fmt.Println("=== Uniform style (fixed size + page count) ===")
+	if info, err := os.Stat(testdata); err == nil && info.IsDir() {
+		var allFiles []string
+		for _, pattern := range []string{"*.pdf", "*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"} {
+			matches, _ := filepath.Glob(filepath.Join(testdata, pattern))
+			allFiles = append(allFiles, matches...)
+		}
+		sort.Strings(allFiles)
+
+		for _, f := range allFiles {
+			base := filepath.Base(f)
+			outName := strings.TrimSuffix(base, filepath.Ext(base)) + "_uniform.png"
+			outPath := filepath.Join(dir, outName)
+			err := thumbnails.GenerateStyledAndSave(f, outPath, *width, thumbnails.StyleUniform)
+			if err != nil {
+				fmt.Printf("  %-30s ERROR: %v\n", base, err)
+			} else {
+				info, _ := os.Stat(outPath)
+				fmt.Printf("  %-30s -> %s (%d bytes)\n", base, outName, info.Size())
+			}
+		}
+	}
+
+	// Uniform synthetic images
+	synthNames := []string{"red_200x100.png", "green_80x120.png", "blue_500x500.png", "gradient_300x200.png", "tiny_10x10.png"}
+	for _, name := range synthNames {
+		srcPath := filepath.Join(synthDir, name)
+		outName := strings.TrimSuffix(name, filepath.Ext(name)) + "_uniform.png"
+		outPath := filepath.Join(dir, outName)
+		if err := thumbnails.GenerateStyledAndSave(srcPath, outPath, *width, thumbnails.StyleUniform); err != nil {
+			fmt.Printf("  %-30s ERROR: %v\n", name, err)
+		} else {
+			info, _ := os.Stat(outPath)
+			fmt.Printf("  %-30s -> %s (%d bytes)\n", name, outName, info.Size())
+		}
+	}
+
 	fmt.Printf("\nDone. View results in:\n  %s\n", dir)
 }
 

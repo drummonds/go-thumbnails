@@ -372,6 +372,134 @@ func TestGenerateAndSaveTestdataImage(t *testing.T) {
 	}
 }
 
+func TestUniformHeight(t *testing.T) {
+	tests := []struct {
+		width    uint
+		expected uint
+	}{
+		{64, 91},   // round(64 * 1.42) = round(90.88) = 91
+		{100, 142}, // round(100 * 1.42) = 142
+		{128, 182}, // round(128 * 1.42) = round(181.76) = 182
+	}
+	for _, tt := range tests {
+		result := uniformHeight(tt.width)
+		if result != tt.expected {
+			t.Errorf("uniformHeight(%d) = %d, want %d", tt.width, result, tt.expected)
+		}
+	}
+}
+
+func TestGenerateStyledUniformPNG(t *testing.T) {
+	tmpDir := t.TempDir()
+	pngPath := filepath.Join(tmpDir, "test.png")
+
+	// Create a 100x80 white test PNG
+	img := image.NewRGBA(image.Rect(0, 0, 100, 80))
+	for y := 0; y < 80; y++ {
+		for x := 0; x < 100; x++ {
+			img.Set(x, y, color.White)
+		}
+	}
+	f, err := os.Create(pngPath)
+	if err != nil {
+		t.Fatalf("failed to create test PNG: %v", err)
+	}
+	if err := png.Encode(f, img); err != nil {
+		f.Close()
+		t.Fatalf("failed to encode test PNG: %v", err)
+	}
+	f.Close()
+
+	thumb, err := GenerateStyled(pngPath, 50, StyleUniform)
+	if err != nil {
+		t.Fatalf("GenerateStyled for PNG failed: %v", err)
+	}
+
+	expectedW := 50
+	expectedH := int(uniformHeight(50)) // 71
+	if thumb.Bounds().Dx() != expectedW {
+		t.Errorf("expected width %d, got %d", expectedW, thumb.Bounds().Dx())
+	}
+	if thumb.Bounds().Dy() != expectedH {
+		t.Errorf("expected height %d, got %d", expectedH, thumb.Bounds().Dy())
+	}
+}
+
+func TestGenerateStyledUniformPDF(t *testing.T) {
+	if !hasTestdata() {
+		t.Skip("testdata/ not found, skipping PDF tests")
+	}
+
+	tests := []struct {
+		name  string
+		file  string
+		width uint
+	}{
+		{"single page PDF", "2-hello.pdf", 64},
+		{"two page PDF", "5-twopage.pdf", 64},
+		{"five page PDF", "6-fivepage.pdf", 64},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(testdataDir(), tt.file)
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				t.Skipf("test file %s not found", tt.file)
+			}
+
+			img, err := GenerateStyled(path, tt.width, StyleUniform)
+			if err != nil {
+				t.Fatalf("GenerateStyled(%q, %d, StyleUniform) failed: %v", path, tt.width, err)
+			}
+
+			bounds := img.Bounds()
+			expectedW := int(tt.width)
+			expectedH := int(uniformHeight(tt.width))
+			if bounds.Dx() != expectedW {
+				t.Errorf("expected width %d, got %d", expectedW, bounds.Dx())
+			}
+			if bounds.Dy() != expectedH {
+				t.Errorf("expected height %d, got %d", expectedH, bounds.Dy())
+			}
+		})
+	}
+}
+
+func TestGenerateStyledCompositeBackcompat(t *testing.T) {
+	tmpDir := t.TempDir()
+	pngPath := filepath.Join(tmpDir, "test.png")
+
+	img := image.NewRGBA(image.Rect(0, 0, 100, 80))
+	for y := 0; y < 80; y++ {
+		for x := 0; x < 100; x++ {
+			img.Set(x, y, color.White)
+		}
+	}
+	f, err := os.Create(pngPath)
+	if err != nil {
+		t.Fatalf("failed to create test PNG: %v", err)
+	}
+	if err := png.Encode(f, img); err != nil {
+		f.Close()
+		t.Fatalf("failed to encode test PNG: %v", err)
+	}
+	f.Close()
+
+	orig, err := Generate(pngPath, 50)
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	styled, err := GenerateStyled(pngPath, 50, StyleComposite)
+	if err != nil {
+		t.Fatalf("GenerateStyled failed: %v", err)
+	}
+
+	if orig.Bounds() != styled.Bounds() {
+		t.Errorf("bounds differ: Generate=%v, GenerateStyled=%v", orig.Bounds(), styled.Bounds())
+	}
+}
+
 func TestGenerateAndSaveImage(t *testing.T) {
 	tmpDir := t.TempDir()
 	pngPath := filepath.Join(tmpDir, "test.png")

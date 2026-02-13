@@ -7,9 +7,8 @@ import (
 	"github.com/drummonds/go-thumbnails/pdfrenderer"
 )
 
-// generatePDFThumbnail creates a thumbnail from a PDF file.
-// It renders all pages and composites up to 4 side-by-side.
-func generatePDFThumbnail(path string, width uint) (image.Image, error) {
+// renderPDFPages renders all pages of a PDF file as images.
+func renderPDFPages(path string) ([]image.Image, error) {
 	renderer, err := pdfrenderer.NewPDFiumRenderer()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create PDF renderer: %w", err)
@@ -25,5 +24,5 @@ func generatePDFThumbnail(path string, width uint) (image.Image, error) {
 		return nil, fmt.Errorf("PDF has no pages")
 	}
 
-	return compositePages(pages, width), nil
+	return pages, nil
 }
