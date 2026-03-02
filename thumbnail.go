@@ -42,7 +42,7 @@ func renderPages(filePath string) ([]image.Image, error) {
 		return renderPDFPages(filePath)
 	case ".tif", ".tiff":
 		return renderTIFFPages(filePath)
-	case ".jpg", ".jpeg", ".png":
+	case ".jpg", ".jpeg", ".png", ".gif":
 		img, err := renderImagePage(filePath)
 		if err != nil {
 			return nil, err

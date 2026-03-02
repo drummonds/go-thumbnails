@@ -3,6 +3,7 @@ package thumbnails
 import (
 	"image"
 	"image/color"
+	"image/gif"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -497,6 +498,79 @@ func TestGenerateStyledCompositeBackcompat(t *testing.T) {
 
 	if orig.Bounds() != styled.Bounds() {
 		t.Errorf("bounds differ: Generate=%v, GenerateStyled=%v", orig.Bounds(), styled.Bounds())
+	}
+}
+
+func TestGenerateImageGIF(t *testing.T) {
+	tmpDir := t.TempDir()
+	gifPath := filepath.Join(tmpDir, "test.gif")
+
+	// Create a 100x80 paletted GIF
+	palette := color.Palette{color.White, color.RGBA{0, 128, 0, 255}}
+	img := image.NewPaletted(image.Rect(0, 0, 100, 80), palette)
+	for y := 0; y < 80; y++ {
+		for x := 0; x < 100; x++ {
+			img.SetColorIndex(x, y, 1)
+		}
+	}
+	f, err := os.Create(gifPath)
+	if err != nil {
+		t.Fatalf("failed to create test GIF: %v", err)
+	}
+	if err := gif.Encode(f, img, nil); err != nil {
+		f.Close()
+		t.Fatalf("failed to encode test GIF: %v", err)
+	}
+	f.Close()
+
+	thumb, err := Generate(gifPath, 50)
+	if err != nil {
+		t.Fatalf("Generate for GIF failed: %v", err)
+	}
+
+	expectedW := 50
+	expectedH := int(pageHeight(50))
+	if thumb.Bounds().Dx() != expectedW {
+		t.Errorf("expected width %d, got %d", expectedW, thumb.Bounds().Dx())
+	}
+	if thumb.Bounds().Dy() != expectedH {
+		t.Errorf("expected height %d, got %d", expectedH, thumb.Bounds().Dy())
+	}
+}
+
+func TestGenerateAndSaveGIF(t *testing.T) {
+	tmpDir := t.TempDir()
+	gifPath := filepath.Join(tmpDir, "test.gif")
+	outputPath := filepath.Join(tmpDir, "thumb.png")
+
+	palette := color.Palette{color.White, color.RGBA{255, 0, 0, 255}}
+	img := image.NewPaletted(image.Rect(0, 0, 200, 100), palette)
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 200; x++ {
+			img.SetColorIndex(x, y, 1)
+		}
+	}
+	f, err := os.Create(gifPath)
+	if err != nil {
+		t.Fatalf("failed to create test GIF: %v", err)
+	}
+	if err := gif.Encode(f, img, nil); err != nil {
+		f.Close()
+		t.Fatalf("failed to encode test GIF: %v", err)
+	}
+	f.Close()
+
+	err = GenerateAndSave(gifPath, outputPath, 50)
+	if err != nil {
+		t.Fatalf("GenerateAndSave for GIF failed: %v", err)
+	}
+
+	info, err := os.Stat(outputPath)
+	if err != nil {
+		t.Fatalf("output file not found: %v", err)
+	}
+	if info.Size() == 0 {
+		t.Error("output file is empty")
 	}
 }
 

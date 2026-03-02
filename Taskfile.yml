@@ -57,15 +57,3 @@ tasks:
       - rm -f coverage.out coverage.html
       - echo "Cleaned generated files"
 
-  # Release (adapted from godocs)
-  release:
-    desc: 'Release a version, e.g.: task release VERSION=v0.1.0 COMMENT="initial release"'
-    requires:
-      vars: [VERSION, COMMENT]
-    cmds:
-      - task: check
-      - git add .
-      - git commit -am "{{.COMMENT}}"
-      - git tag "{{.VERSION}}"
-      - git push origin "{{.VERSION}}"
-      - git push
