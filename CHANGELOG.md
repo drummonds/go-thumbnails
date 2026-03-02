@@ -1,4 +1,7 @@
 # Changelog
+## [0.6.2] - 2026-03-02
+
+ - Adding gif to thumbnail generation
 
 ## v0.6.0
 
