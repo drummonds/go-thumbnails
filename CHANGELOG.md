@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.6.6] - 2026-03-14
+
+ - making sure install works
+
 ## [0.6.5] - 2026-03-14
 
  - Checking after linting deploy error
