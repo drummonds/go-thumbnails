@@ -6,3 +6,5 @@ thumbnails
 .vscode
 docs/*.html
 docs/images/
+.claude/settings.json
+.vscode/tasks.json
