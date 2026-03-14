@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.6.5] - 2026-03-14
+
+ - Checking after linting deploy error
+
 ## [0.6.4] - 2026-03-14
 
  - Updating taskfile
