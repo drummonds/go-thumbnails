@@ -34,7 +34,7 @@ func resizeToPage(img image.Image, width uint) *image.RGBA {
 		srcRect := image.Rect(0, 0, int(width), ph)
 		draw.Draw(dst, dst.Bounds(), scaled, srcRect.Min, draw.Src)
 	} else {
-		// Place at top, white fills the rest.
+		// Place at top, grey fills the rest.
 		dstRect := image.Rect(0, 0, int(width), scaledH)
 		draw.Draw(dst, dstRect, scaled, scaled.Bounds().Min, draw.Src)
 	}

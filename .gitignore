@@ -2,7 +2,13 @@ testdata/
 batch
 diagnose
 thumbnails
+showcase
+gentestimages
+gendocimages
+coverage.out
+coverage.html
 
+.task
 .vscode
 docs/*.html
 docs/images/

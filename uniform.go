@@ -40,7 +40,7 @@ func uniformPage(firstPage image.Image, pageCount int, width uint) image.Image {
 			// Crop from top
 			draw.Draw(dst, dst.Bounds(), scaled, image.Point{}, draw.Src)
 		} else {
-			// Place at top, white fills below
+			// Place at top, grey fills below
 			dstRect := image.Rect(0, 0, w, scaledH)
 			draw.Draw(dst, dstRect, scaled, scaled.Bounds().Min, draw.Src)
 		}
