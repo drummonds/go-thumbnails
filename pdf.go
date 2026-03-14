@@ -13,7 +13,7 @@ func renderPDFPages(path string) ([]image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create PDF renderer: %w", err)
 	}
-	defer renderer.Close()
+	defer func() { _ = renderer.Close() }()
 
 	pages, err := renderer.RenderPDF(path)
 	if err != nil {

@@ -95,7 +95,7 @@ func GenerateStyledAndSave(filePath, outputPath string, width uint, style Style)
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	if err := png.Encode(f, img); err != nil {
 		return fmt.Errorf("failed to encode thumbnail: %w", err)

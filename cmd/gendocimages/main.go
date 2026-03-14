@@ -31,7 +31,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "tmpdir: %v\n", err)
 		os.Exit(1)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// Source images: landscape, portrait, square
 	sources := []struct {
@@ -187,7 +187,7 @@ func mustSavePNG(img image.Image, path string) {
 		fmt.Fprintf(os.Stderr, "create %s: %v\n", path, err)
 		os.Exit(1)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	if err := png.Encode(f, img); err != nil {
 		fmt.Fprintf(os.Stderr, "encode %s: %v\n", path, err)
 		os.Exit(1)

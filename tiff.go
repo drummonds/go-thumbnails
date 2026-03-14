@@ -15,7 +15,7 @@ func renderTIFFPages(path string) ([]image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open TIFF file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	pages, err := decodeTIFFPages(f)
 	if err != nil {
