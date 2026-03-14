@@ -42,6 +42,12 @@ tasks:
       - go get -u ./...
       - go mod tidy
 
+  # Install
+  install:
+    desc: Install thumbnails CLI
+    cmds:
+      - go install ./cmd/thumbnails
+
   # Combined checks
   check:
     desc: Run all checks (fmt, vet, test)
