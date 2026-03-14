@@ -20,6 +20,13 @@ Pure Go thumbnail generator for PDF, TIFF, JPEG, PNG, and GIF documents. Uses PD
 | PNG    | No        | Simple resize |
 | GIF    | No        | Simple resize |
 
+## Documentation
+
+- [Gallery](gallery.md) — visual examples of all thumbnail styles and features
+- [Commands](commands.md) — CLI tools for development and batch processing
+- [README](README.md) — library API and installation
+- [Changelog](CHANGELOG.md) — version history
+
 ## Links
 
 | | |

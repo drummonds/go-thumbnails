@@ -54,9 +54,12 @@ tasks:
   docs:build:
     desc: Build documentation
     cmds:
+      - go run ./cmd/gendocimages -output docs/images
       - task-plus md2html --file index.md --dst docs
       - task-plus md2html --file README.md --dst docs
       - task-plus md2html --file CHANGELOG.md --dst docs
+      - task-plus md2html --file gallery.md --dst docs
+      - task-plus md2html --file commands.md --dst docs
       - task-plus md2html --index --dst docs --project go-thumbnails
 
   # Clean
