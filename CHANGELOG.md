@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-03-14
+
 ### Added
 - Page-level API: `RenderPages`, `RenderPage`, `ResizePage`, `DefaultPageThumbnailPath`
 - `PageResult` type with page metadata (page number, page count)
