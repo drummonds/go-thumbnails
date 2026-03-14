@@ -1,4 +1,15 @@
 # Changelog
+
+## [Unreleased]
+
+### Added
+- Page-level API: `RenderPages`, `RenderPage`, `ResizePage`, `DefaultPageThumbnailPath`
+- `PageResult` type with page metadata (page number, page count)
+- `ErrPageOutOfRange` sentinel error
+- CLI tool (`cmd/thumbnails`) for generating thumbnails from the command line
+- `ROADMAP.md`
+- Documentation build pipeline (`docs:build` task, statichost deployment)
+
 ## [0.6.2] - 2026-03-02
 
  - Adding gif to thumbnail generation

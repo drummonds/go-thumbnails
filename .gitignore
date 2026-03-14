@@ -1,5 +1,7 @@
 testdata/
 batch
 diagnose
+thumbnails
 
 .vscode
+docs/*.html
