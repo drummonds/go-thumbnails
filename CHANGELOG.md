@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-03-14
+
+ - Updating taskfile
+
 ## [0.6.3] - 2026-03-14
 
 ### Added
