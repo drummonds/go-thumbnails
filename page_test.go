@@ -46,10 +46,10 @@ func TestRenderPagesPNG(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatal(err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	results, err := RenderPages(pngPath)
 	if err != nil {
@@ -84,10 +84,10 @@ func TestRenderPagePNG(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatal(err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	result, err := RenderPage(pngPath, 1)
 	if err != nil {
@@ -108,10 +108,10 @@ func TestRenderPageOutOfRange(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatal(err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	_, err = RenderPage(pngPath, 0)
 	if !errors.Is(err, ErrPageOutOfRange) {

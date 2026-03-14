@@ -130,10 +130,10 @@ func TestGenerateImagePNG(t *testing.T) {
 		t.Fatalf("failed to create test PNG: %v", err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test PNG: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	// width=50: image scaled to 50×40, padded to 50×pageHeight(50)=50×71
 	thumb, err := Generate(pngPath, 50)
@@ -202,10 +202,10 @@ func TestGenerateOrPlaceholderSuccess(t *testing.T) {
 		t.Fatalf("failed to create test PNG: %v", err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test PNG: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	thumb := GenerateOrPlaceholder(pngPath, 50)
 	if thumb == nil {
@@ -406,10 +406,10 @@ func TestGenerateStyledUniformPNG(t *testing.T) {
 		t.Fatalf("failed to create test PNG: %v", err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test PNG: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	thumb, err := GenerateStyled(pngPath, 50, StyleUniform)
 	if err != nil {
@@ -481,10 +481,10 @@ func TestGenerateStyledCompositeBackcompat(t *testing.T) {
 		t.Fatalf("failed to create test PNG: %v", err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test PNG: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	orig, err := Generate(pngPath, 50)
 	if err != nil {
@@ -518,10 +518,10 @@ func TestGenerateImageGIF(t *testing.T) {
 		t.Fatalf("failed to create test GIF: %v", err)
 	}
 	if err := gif.Encode(f, img, nil); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test GIF: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	thumb, err := Generate(gifPath, 50)
 	if err != nil {
@@ -555,10 +555,10 @@ func TestGenerateAndSaveGIF(t *testing.T) {
 		t.Fatalf("failed to create test GIF: %v", err)
 	}
 	if err := gif.Encode(f, img, nil); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test GIF: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	err = GenerateAndSave(gifPath, outputPath, 50)
 	if err != nil {
@@ -591,10 +591,10 @@ func TestGenerateAndSaveImage(t *testing.T) {
 		t.Fatalf("failed to create test PNG: %v", err)
 	}
 	if err := png.Encode(f, img); err != nil {
-		f.Close()
+		_ = f.Close()
 		t.Fatalf("failed to encode test PNG: %v", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	err = GenerateAndSave(pngPath, outputPath, 50)
 	if err != nil {

@@ -16,14 +16,17 @@ func main() {
 	}
 	pdfPath := os.Args[1]
 	outDir := os.Args[2]
-	os.MkdirAll(outDir, 0755)
+	if err := os.MkdirAll(outDir, 0755); err != nil {
+		fmt.Fprintf(os.Stderr, "mkdir: %v\n", err)
+		os.Exit(1)
+	}
 
 	renderer, err := pdfrenderer.NewPDFiumRenderer()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "renderer error: %v\n", err)
 		os.Exit(1)
 	}
-	defer renderer.Close()
+	defer func() { _ = renderer.Close() }()
 
 	pages, err := renderer.RenderPDF(pdfPath)
 	if err != nil {
@@ -127,7 +130,13 @@ func main() {
 }
 
 func savePNG(img image.Image, path string) {
-	f, _ := os.Create(path)
-	defer f.Close()
-	png.Encode(f, img)
+	f, err := os.Create(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "create %s: %v\n", path, err)
+		return
+	}
+	defer func() { _ = f.Close() }()
+	if err := png.Encode(f, img); err != nil {
+		fmt.Fprintf(os.Stderr, "encode %s: %v\n", path, err)
+	}
 }

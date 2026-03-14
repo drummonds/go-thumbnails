@@ -75,7 +75,10 @@ func main() {
 	// --- 2. Synthetic images (PNG, JPG) ---
 	fmt.Println("=== Synthetic images ===")
 	synthDir := filepath.Join(dir, "_synthetic_sources")
-	os.MkdirAll(synthDir, 0755)
+	if err := os.MkdirAll(synthDir, 0755); err != nil {
+		fmt.Fprintf(os.Stderr, "mkdir: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Red 200x100 PNG
 	saveSynthThumb(synthDir, dir, "red_200x100.png", createSolidPNG(200, 100, color.RGBA{220, 40, 40, 255}), *width)
@@ -206,6 +209,6 @@ func savePNG(img image.Image, path string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	return png.Encode(f, img)
 }

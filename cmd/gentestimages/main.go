@@ -54,7 +54,7 @@ func saveImage(path string, img image.Image) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	ext := filepath.Ext(path)
 	switch ext {

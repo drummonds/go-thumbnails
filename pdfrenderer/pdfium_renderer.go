@@ -30,7 +30,7 @@ func NewPDFiumRenderer() (*PDFiumRenderer, error) {
 
 	instance, err := pool.GetInstance(time.Second * 30)
 	if err != nil {
-		pool.Close()
+		_ = pool.Close()
 		return nil, fmt.Errorf("failed to get PDFium instance: %w", err)
 	}
 
@@ -53,9 +53,11 @@ func (r *PDFiumRenderer) RenderPDF(filename string) ([]image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to open PDF document: %w", err)
 	}
-	defer r.instance.FPDF_CloseDocument(&requests.FPDF_CloseDocument{
-		Document: doc.Document,
-	})
+	defer func() {
+		_, _ = r.instance.FPDF_CloseDocument(&requests.FPDF_CloseDocument{
+			Document: doc.Document,
+		})
+	}()
 
 	pageCountResp, err := r.instance.FPDF_GetPageCount(&requests.FPDF_GetPageCount{
 		Document: doc.Document,
@@ -105,10 +107,11 @@ func (r *PDFiumRenderer) RenderPDF(filename string) ([]image.Image, error) {
 
 // Close cleans up resources used by the PDFium renderer.
 func (r *PDFiumRenderer) Close() error {
+	var err error
 	if r.pool != nil {
-		r.pool.Close()
+		err = r.pool.Close()
 		r.pool = nil
 	}
 	r.instance = nil
-	return nil
+	return err
 }
