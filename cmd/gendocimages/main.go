@@ -14,7 +14,7 @@ import (
 	"os"
 	"path/filepath"
 
-	thumbnails "github.com/drummonds/go-thumbnails"
+	thumbnails "codeberg.org/hum3/go-thumbnails"
 )
 
 func main() {

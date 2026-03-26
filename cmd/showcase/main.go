@@ -17,7 +17,7 @@ import (
 	"sort"
 	"strings"
 
-	thumbnails "github.com/drummonds/go-thumbnails"
+	thumbnails "codeberg.org/hum3/go-thumbnails"
 )
 
 func main() {

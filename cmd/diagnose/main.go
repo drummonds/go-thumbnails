@@ -6,7 +6,7 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/drummonds/go-thumbnails/pdfrenderer"
+	"codeberg.org/hum3/go-thumbnails/pdfrenderer"
 )
 
 func main() {

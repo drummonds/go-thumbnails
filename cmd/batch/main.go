@@ -11,7 +11,7 @@ import (
 	"sort"
 	"time"
 
-	thumbnails "github.com/drummonds/go-thumbnails"
+	thumbnails "codeberg.org/hum3/go-thumbnails"
 )
 
 type Result struct {

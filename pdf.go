@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"image"
 
-	"github.com/drummonds/go-thumbnails/pdfrenderer"
+	"codeberg.org/hum3/go-thumbnails/pdfrenderer"
 )
 
 // renderPDFPages renders all pages of a PDF file as images.

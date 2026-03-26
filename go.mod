@@ -1,4 +1,4 @@
-module github.com/drummonds/go-thumbnails
+module codeberg.org/hum3/go-thumbnails
 
 go 1.25.3
 
